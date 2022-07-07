@@ -11,7 +11,7 @@ jobs: # workflow consists of one or more jobs
     steps:
       - uses: actions/checkout@v2
       - name: use Node.js version 16
-      - uses: actions/setup-node@v2 # make sure that node is installed
+        uses: actions/setup-node@v2 # make sure that node is installed
         with:
           node-version: "16"
       - run: npm install
