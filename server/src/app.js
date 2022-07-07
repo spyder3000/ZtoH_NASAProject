@@ -4,8 +4,7 @@ const path = require("path");
 const cors = require("cors");
 const morgan = require("morgan");
 
-const planetsRouter = require("./routes/planets/planets.router");
-const launchesRouter = require("./routes/launches/launches.router");
+const api = require("./routes/api");
 
 const app = express(); // express is just middleware - a listener function for http fn
 
@@ -22,9 +21,7 @@ app.use(express.json()); // will parse any incoming JSON from body of incoming r
 
 // the needed path for this now that we've moved the build to server\public via package.json on client
 app.use(express.static(path.join(__dirname, "..", "public")));
-
-app.use("/planets", planetsRouter); // middleware than handles routes to planets
-app.use("/launches", launchesRouter); // middleware than handles routes to launches;  1st param limits this to just /launches path
+app.use("/v1", api);
 
 app.get("/*", (req, res) => {
 	console.log(

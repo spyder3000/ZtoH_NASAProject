@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { parse } = require("csv-parse");
 
-const habitablePlanets = [];
+const planets = require("./planets.mongo.js");
 
 function isHabitablePlanet(planet) {
 	return (
@@ -13,16 +13,6 @@ function isHabitablePlanet(planet) {
 	);
 }
 
-/*
-const promise = new Promise((resolve, reject) => {
-   resolve(42); 
-}); 
-promise.then((result) => {
-
-});
-const result = await promise;  
-console.log(result); 
-*/
 function loadPlanetsData() {
 	return new Promise((resolve, reject) => {
 		fs.createReadStream(
@@ -34,29 +24,55 @@ function loadPlanetsData() {
 					columns: true,
 				})
 			)
-			.on("data", (data) => {
+			.on("data", async (data) => {
 				if (isHabitablePlanet(data)) {
-					habitablePlanets.push(data);
+					savePlanet(data);
 				}
 			})
 			.on("error", (err) => {
-				console.log(err);
+				console.log("jverr100", err);
 				reject(err); // for error
 			})
-			.on("end", () => {
-				console.log(
-					habitablePlanets.map((planet) => {
-						return planet["kepler_name"];
-					})
-				);
-				console.log(`${habitablePlanets.length} habitable planets found!`);
-				resolve(); // ends promise;  returns nothing because we are setting habitablePlanets array w/ core data
+			.on("end", async () => {
+				const countPlanetsFound = (await getAllPlanets()).length;
+				console.log(`${countPlanetsFound} habitable planets found!`);
+				resolve(); // ends promise;
 			});
 	});
 }
 
-function getAllPlanets() {
-	return habitablePlanets;
+// abstracted fn -- puts all mongoose specific logic here, so main call will be removed from mongoose
+async function getAllPlanets() {
+	// param 1 if filter -- {} returns all planets;  param 2 is fields to return (1 include,);
+	// return await planets.find( { keplerName: "Kepler-62 f", },	{ 'keplerName': 1 } 	);
+	console.log("call getAllPlanets");
+	let x = await planets.find(
+		{},
+		{
+			_id: 0,
+			__v: 0,
+		}
+	);
+	console.log("jv560", x.length);
+	return x;
+}
+
+// use .upsert() instead of .create() -- both are async mongoose;  data needs to be in format that matches Schema
+// 2nd argument is object we're inserting / updating;  3rd param is upsert (to add if not exist)
+async function savePlanet(planet) {
+	try {
+		await planets.updateOne(
+			{
+				keplerName: planet.kepler_name,
+			},
+			{
+				keplerName: planet.kepler_name,
+			},
+			{ upsert: true }
+		);
+	} catch (err) {
+		console.error(`Could not save planet ${err}`);
+	}
 }
 
 module.exports = {
