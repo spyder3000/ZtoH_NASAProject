@@ -17,4 +17,4 @@ jobs: # workflow consists of one or more jobs
       - run: npm install
       - run: npm run build --prefix client # run create-react-app script inside client folder
   # deploy:
-  #   needs: build # deploy only runs if build finishes
+  #   needs: build # deploy only runs if the build finishes
