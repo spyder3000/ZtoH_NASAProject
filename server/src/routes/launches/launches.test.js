@@ -1,6 +1,5 @@
 const request = require("supertest");
 const app = require("../../app"); // need app.js as application for request
-const { loadPlanetsData } = require("../../models/planets.model");
 const { mongoConnect, mongoDisconnect } = require("../../services/mongo");
 
 const { loadPlanetsData } = require("../../models/planets.model");
