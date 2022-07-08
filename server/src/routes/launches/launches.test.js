@@ -1,6 +1,9 @@
 const request = require("supertest");
 const app = require("../../app"); // need app.js as application for request
+const { loadPlanetsData } = require("../../models/planets.model");
 const { mongoConnect, mongoDisconnect } = require("../../services/mongo");
+
+const { loadPlanetsData } = require("../../models/planets.model");
 
 // use JEST to set up an environment for our test;  we want our Mongo connection to stay alive for our GET & POST tests
 //   solution is to put the GET & POST describes w/in another describe block
@@ -8,6 +11,7 @@ describe("Launches API", () => {
 	// beforeAll() needs to run once before all other tests are run
 	beforeAll(async () => {
 		await mongoConnect();
+		await loadPlanetsData();
 	});
 	afterAll(async () => {
 		await mongoDisconnect();
