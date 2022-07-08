@@ -9,9 +9,11 @@ jobs: # workflow consists of one or more jobs
   build:
     env:
       CI: true # create-react-app test script will know in a CI mode & will ignore watch mode (because we can't manually end watch)
+      MONGO_URL: mongodb://localhost/nasa # name of db inside mongo that stores all collections in our app
     strategy:
       matrix:
         node-version: [16.x, 14.x] # e.g. .x is latest version of node 16 & node 14
+        mongodb-version: ["4.4"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # checks out code from Git repository, so you can install & run it on Github
@@ -19,9 +21,15 @@ jobs: # workflow consists of one or more jobs
         uses: actions/setup-node@v2 # make sure that node is installed
         with:
           node-version: ${{ matrix.node-version }} #"16"
+      - name: MongoDB in GitHub Actions
+        # copied from Google Marketplace actions
+        uses: supercharge/mongodb-github-action@1.7.0 # starts a MongoDB server (on default port 27017)
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
       - run: npm install
       - run: npm run build --prefix client # run create-react-app script inside client folder
-      - run: npm test
+      - run: npm test # want to run test while using .env values
+
 
   # deploy:
   #   needs: build # deploy only runs if the build finishes
